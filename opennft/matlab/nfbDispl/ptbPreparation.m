@@ -75,7 +75,7 @@ Screen('DrawText', P.Screen.wPtr, 'HELLO', ...
     floor(P.Screen.h/2-P.Screen.h/10), [200 200 200]);
 P.Screen.vbl=Screen('Flip', P.Screen.wPtr,P.Screen.vbl+P.Screen.ifi/2);
 
-pause(1);
+pause(2);
 
 % Each event row for PTB is formatted as
 % [t9, t10, displayTimeInstruction, displayTimeFeedback]
