@@ -11,13 +11,9 @@ def run():
 
     group = input(">>> Need a random group (y or n)? ")
     if group == "y":
-        random_group = random.randint(1, 10)
         ints = input(">>> Set an interest area: ")
         comp = input(">>> Set a compared area: ")
-        if random_group % 2 == 0:
-            print(f"------ The testee are given to {ints}. ------")
-        else:
-            print(f"------ The testee are given to {comp}. ------")
+        print(f"------ The testee are given to {random.choice([ints, comp])}. ------")
 
     mode = input(">>> Online mode (y or n)? ")
     online_to = __matlab__ / "utils" / "getVolData.m"
@@ -41,26 +37,44 @@ def run():
     print(">>> 3.add rest condition;")
     print(">>> 4.remove activity bar;")
     print(">>> 5.nothing to do.")
+    __screen__ = __dir__ / "screen"
     feed_to = __matlab__ / "nfbDispl" / "displayFeedback.m"
+    main_loop_to = __matlab__ / "mainLoopEntry.m"
+    main_loop_from = __dir__ / "original" / "mainLoopEntry.m"
+    shutil.copyfile(main_loop_from, main_loop_to)
+
     feed = input()
     if feed == "1":
-        feed_from = __dir__ / "screen" / "random" / "displayFeedback.m"
-        shutil.copyfile(feed_from, feed_to)
-        random_num = random.randint(1, 9)
-        print(f"------ Set random number as {random_num}. ------")
-    elif feed == "2":
-        print("------ Please choose the suitable json in <setup>. ------")
-    elif feed == "3":
-        feed_from = __dir__ / "screen" / "rest" / "displayFeedback.m"
-        print("------ Please choose the suitable json in <setup>. ------")
-        shutil.copyfile(feed_from, feed_to)
-    elif feed == "4":
-        feed_from = __dir__ / "screen" / "nobar" / "displayFeedback.m"
-        shutil.copyfile(feed_from, feed_to)
-    elif feed == "5":
-        feed_from = __dir__ / "screen" / "nothing" / "displayFeedback.m"
+        feed_from = __screen__ / "random" / "displayFeedback.m"
         shutil.copyfile(feed_from, feed_to)
 
+    elif feed == "2":
+        feed_from = __screen__ / "random" / "displayFeedback.m"
+        shutil.copyfile(feed_from, feed_to)
+        json = __screen__ / "db_reg" / "config.json"
+        print("------ Please choose the suitable json in <setup>. ------")
+        print(f"------ {json} ------")
+
+    elif feed == "3":
+        feed_from = __screen__ / "rest" / "displayFeedback.m"
+        shutil.copyfile(feed_from, feed_to)
+        main_loop_from = __dir__ / "changed" / "mainLoopEntry.m"
+        shutil.copyfile(main_loop_from, main_loop_to)
+        json = __screen__ / "rest" / "config.json"
+        print("------ Please choose the suitable json in <setup>. ------")
+        print(f"------ {json} ------")
+
+    elif feed == "4":
+        feed_from = __screen__ / "rm_reg" / "displayFeedback.m"
+        shutil.copyfile(feed_from, feed_to)
+    elif feed == "5":
+        feed_from = __screen__ / "nothing" / "displayFeedback.m"
+        shutil.copyfile(feed_from, feed_to)
+        print("====== Setup done. ======")
+        return
+
+    random_num = random.randint(1, 9)
+    print(f"------ Set random number as {random_num}. ------")
     print("====== Setup done. ======")
     return
 

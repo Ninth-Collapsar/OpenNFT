@@ -14,6 +14,8 @@ function displayFeedback(displayData)
 
 tDispl = tic;
 
+randomNum = 7;
+
 P = evalin('base', 'P');
 Tex = evalin('base', 'Tex');
 
@@ -36,7 +38,7 @@ switch feedbackType
             case 1  % Baseline
                 % Text "COUNT"
                 Screen('TextSize', P.Screen.wPtr , P.Screen.h/10);
-                Screen('DrawText', P.Screen.wPtr, 'COUNT', ...
+                Screen('DrawText', P.Screen.wPtr, ['calc: 100-' num2str(randomNum) '-' num2str(randomNum) '-..'], ...
                     floor(P.Screen.w/2-P.Screen.h/4), ...
                     floor(P.Screen.h/2-P.Screen.h/10), instrColor);
             case 2  % Regualtion
