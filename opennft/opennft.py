@@ -182,10 +182,10 @@ class OpenNFT(QWidget):
         self.resetDone = False
         self.isInitialized = False
         self.isSetFileChosen = False
-        self.isCalculateDcm = False  # todo: rename to computeModelInProgress
+        self.isCalculateDcm = False  # TODO: rename to computeModelInProgress
         self.isMainLoopEntered = False
         self.typicalFileSize = 0
-        self.previousFileSize = 0
+        self.previousFileSize = 0  # new added.
         self.mainLoopLock = threading.Lock()
         self.displayData = None
         self.displayQueue = queue.Queue()
@@ -652,6 +652,7 @@ class OpenNFT(QWidget):
             self.typicalFileSize = Path(path).stat().st_size
 
         else:
+            # 100 should be a changable size.
             while (abs(self.typicalFileSize - filesize) > 100) or (abs(self.previousFileSize - filesize) > 100):
                 filesize = Path(path).stat().st_size
                 # acquisitionFinished = False
