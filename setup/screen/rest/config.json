@@ -1,15 +1,15 @@
 {
-    "ContrastActivation": "+1*NFBREG;0*COUNT",
-    "SignalPreprocessingBasis": "NFBREG;COUNT",
+    "ContrastActivation": "+1*NFBREG",
+    "SignalPreprocessingBasis": "NFBREG",
     "ConditionIndex": 
     [
         {
             "ConditionName": "NFBREG",
-            "OnOffsets": [[81, 120], [201, 240], [321, 360], [441, 480]]
+            "OnOffsets": [[41, 80], [161, 200], [281, 320], [401, 440]]
         },
         {
             "ConditionName": "COUNT",
-            "OnOffsets": [[1, 40], [121, 160], [241, 280], [361, 400]]
+            "OnOffsets": [[81, 120], [201, 240], [321, 360], [441, 480]]
         }
     ]
 }

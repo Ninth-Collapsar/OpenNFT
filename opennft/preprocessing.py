@@ -128,6 +128,12 @@ def run():
         json.dump(dstJson, f)
         f.close()
 
+    # new added.
+    roi_dir = os.path.join(subjectDir, "ROI")
+    os.mkdir(os.path.join(roi_dir, "LHIP"))
+    shutil.copyfile(os.path.join(roi_dir, "HIP", "L_HIP.nii"), 
+                    os.path.join(roi_dir, "LHIP", "L_HIP.nii"))
+
     print('--------------------------')
     print('setting: %s' % subjectDir.split('\\')[-1])
     settings.setValue('SubjectID', subjectDir.split('\\')[-1])

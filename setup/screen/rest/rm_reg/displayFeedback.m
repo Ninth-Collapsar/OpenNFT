@@ -14,10 +14,11 @@ function displayFeedback(displayData)
 
 tDispl = tic;
 
-randomNum = 7;
-
 P = evalin('base', 'P');
 Tex = evalin('base', 'Tex');
+
+randomNum = 7;
+% global randomNum;
 
 % Note, don't split cell structure in 2 lines with '...'.
 fieldNames = {'feedbackType', 'condition', 'dispValue', 'Reward', 'displayStage','displayBlankScreen', 'iteration'};
@@ -35,12 +36,17 @@ switch feedbackType
     case 'bar_count'
         dispValue  = dispValue*(floor(P.Screen.h/2) - floor(P.Screen.h/10))/100;
         switch condition
-            case 1  % Baseline
-                % Text "COUNT"
-                Screen('TextSize', P.Screen.wPtr , P.Screen.h/10);
-                Screen('DrawText', P.Screen.wPtr, ['calc: 100-' num2str(randomNum) '-' num2str(randomNum) '-..'], ...
-                    floor(P.Screen.w/2-P.Screen.h/4), ...
-                    floor(P.Screen.h/2-P.Screen.h/10), instrColor);
+            case 1  % REST.
+                Screen('DrawLines', P.Screen.wPtr, ...
+                    [floor(P.Screen.w/2-P.Screen.w/25), ...
+                    floor(P.Screen.w/2+P.Screen.w/25); ...
+                    floor(P.Screen.h/2), floor(P.Screen.h/2)], ...
+                    P.Screen.lw, [0 255 0]);
+                Screen('DrawLines', P.Screen.wPtr, ...
+                    [floor(P.Screen.w/2), floor(P.Screen.w/2); ...
+                    floor(P.Screen.h/2-P.Screen.h/20), ...
+                    floor(P.Screen.h/2+P.Screen.h/20)], ...
+                    P.Screen.lw, [0 255 0]);
             case 2  % Regualtion
                 % Fixation Point
                 Screen('FillOval', P.Screen.wPtr, [255 255 255], ...
@@ -54,11 +60,17 @@ switch feedbackType
                     floor(P.Screen.w/2+P.Screen.w/20); ...
                     floor(P.Screen.h/10), floor(P.Screen.h/10)], ...
                     P.Screen.lw, [255 0 0]);
-                % do not draw activity bar
+                % draw activity bar
+            case 3  % Baseline
+                % Text "COUNT"
+                Screen('TextSize', P.Screen.wPtr , P.Screen.h/10);
+                Screen('DrawText', P.Screen.wPtr, ['calc: 100-' num2str(randomNum) '-' num2str(randomNum) '-..'], ...
+                    floor(P.Screen.w/2-P.Screen.h/4), ...
+                    floor(P.Screen.h/2-P.Screen.h/10), instrColor);
         end
         P.Screen.vbl = Screen('Flip', P.Screen.wPtr, ...
             P.Screen.vbl + P.Screen.ifi/2);
-    
+
     %% Continuous PSC with task block
     case 'bar_count_task'
         dispValue  = dispValue*(floor(P.Screen.h/2) - floor(P.Screen.h/10))/100;
@@ -66,13 +78,13 @@ switch feedbackType
             case 1  % Baseline
                 % Text "COUNT"
                 Screen('TextSize', P.Screen.wPtr , P.Screen.h/10);
-                Screen('DrawText', P.Screen.wPtr, 'COUNT', ...
+                Screen('DrawText', P.Screen.wPtr, ['calc: 100-' num2str(randomNum) '-' num2str(randomNum) '-..'], ...
                     floor(P.Screen.w/2-P.Screen.h/4), ...
                     floor(P.Screen.h/2-P.Screen.h/10), instrColor);
-                
+
                 P.Screen.vbl = Screen('Flip', P.Screen.wPtr, ...
                     P.Screen.vbl + P.Screen.ifi/2);
-                
+
             case 2  % Regualtion
                 % Fixation Point
                 Screen('FillOval', P.Screen.wPtr, [255 255 255], ...
@@ -86,15 +98,12 @@ switch feedbackType
                     floor(P.Screen.w/2+P.Screen.w/20); ...
                     floor(P.Screen.h/10), floor(P.Screen.h/10)], ...
                     P.Screen.lw, [255 0 0]);
-                % do not draw activity bar
-                
-                    P.Screen.vbl = Screen('Flip', P.Screen.wPtr, ...
-                        P.Screen.vbl + P.Screen.ifi/2);
+                % draw activity bar
             case 3
                 % ptbTask sequence called seperetaly in python
-                
+
         end
-        
+
     %% Intermittent PSC
     case 'value_fixation'
         indexSmiley = round(dispValue);
@@ -118,7 +127,7 @@ switch feedbackType
                         pause(randi([30,100])/1000)
                     end
                 end
-                
+
             case 2  % Regualtion
                 for i = 1:2
                     % arrow
@@ -156,7 +165,7 @@ switch feedbackType
                 P.Screen.vbl = Screen('Flip', P.Screen.wPtr, ...
                     P.Screen.vbl + P.Screen.ifi/2);
         end
-        
+
     %% Trial-based DCM
     case 'DCM'
         nrP = P.nrP;
