@@ -65,7 +65,7 @@ def run():
         mainLoop_toP = __matlab__ / "mainLoopEntry.m"
 
         # step 1, add rest first and set it to be baseline, 
-        # move conut to the third condition, 
+        # move random count to the third condition, 
         # and compare regulation with rest.
         mainLoop_fromP = __dir__ / "changed" / "mainLoopEntry.m"
         shutil.copyfile(mainLoop_fromP, mainLoop_toP)
@@ -82,7 +82,7 @@ def run():
         
         set_random()
 
-        # step 3, comp with above steps, remove regulation only.
+        # step 3, compare with above steps, remove regulation only.
         if input(">>> Next step (y or n)? ") == "n":
             recover()
             return
