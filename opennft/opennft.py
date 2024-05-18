@@ -32,6 +32,7 @@ _________________________________________________________________________
 The module below is written by Artem Nikonorov, Evgeny Prilepin, Yury Koush, Ronald Sladky
 
 """
+
 import time
 import glob
 import queue
@@ -48,7 +49,6 @@ import numpy as np
 import pyqtgraph as pg
 import pydicom
 
-from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 from pyniexp.connection import Udp
@@ -76,6 +76,11 @@ from opennft import (
     eventrecorder as erd,
 )
 
+if config.USE_POLLING_FS_OBSERVER:
+    from watchdog.observers.polling import PollingObserver
+else:
+    from watchdog.observers import Observer
+    
 if config.USE_MRPULSE:
     from opennft import mrpulse
 
@@ -185,16 +190,19 @@ class OpenNFT(QWidget):
         self.isCalculateDcm = False  # TODO: rename to computeModelInProgress
         self.isMainLoopEntered = False
         self.typicalFileSize = 0
-        self.previousFileSize = 0  # new added.
         self.mainLoopLock = threading.Lock()
         self.displayData = None
         self.displayQueue = queue.Queue()
+
+        if config.USE_POLLING_FS_OBSERVER:
+            self.fs_observer = PollingObserver()
+        else:
+            self.fs_observer = Observer()
 
         self.mrPulses = None
         self.recorder = erd.EventRecorder()
         self.call_timer = QTimer(self)
         self.files_queue = queue.Queue()
-        self.fs_observer = Observer()
         self.isOffline = None
         self.files_processed = []
         self.files_exported = []
@@ -243,6 +251,7 @@ class OpenNFT(QWidget):
         self.reachedFirstFile = False
 
         self.initializeUi()
+        self.readAppSettings()
         self.initialize(start=False)
 
         self.calc_rtqa = None
@@ -533,11 +542,10 @@ class OpenNFT(QWidget):
                     if 'plugin_prot' in self.pluginWindow.plugins[p].META.keys():
                         if self.settings.value('Prot') != self.pluginWindow.plugins[p].META['plugin_prot']:
                             QMessageBox.warning(self, 'Plugin compatibility issue',
-                                                "Plugin '" + self.pluginWindow.plugins[p].META[
-                                                    'plugin_name'] + "' requires a protocol '" +
-                                                self.pluginWindow.plugins[p].META['plugin_prot'] + "'." +
-                                                "\nIt is not compatible with current prortocol '" + self.settings.value(
-                                                    'Prot') + "' and will not be used.")
+                                "Plugin '" + self.pluginWindow.plugins[p].META['plugin_name'] + 
+                                "' requires a protocol '" + self.pluginWindow.plugins[p].META['plugin_prot'] + 
+                                "'." + "\nIt is not compatible with current prortocol '" + 
+                                self.settings.value('Prot') + "' and will not be used.")
                             continue
                     self.plugins += [plugin.Plugin(self, self.pluginWindow.plugins[p])]
 
@@ -638,27 +646,17 @@ class OpenNFT(QWidget):
 
     # --------------------------------------------------------------------------
     def checkFileIsReady(self, path, fname):
-
         acquisitionFinished = True
         filesize = Path(path).stat().st_size
-        # The first file.
         if self.typicalFileSize <= 0:
-            time.sleep(0.100)
-            while filesize < Path(path).stat().st_size:
-                filesize = Path(path).stat().st_size
-                # acquisitionFinished = False
-                time.sleep(0.050)
-
-            self.typicalFileSize = Path(path).stat().st_size
+            time.sleep(0.050)
+            if filesize < Path(path).stat().st_size:
+                acquisitionFinished = False
 
         else:
-            # 100 should be a changable size.
-            while (abs(self.typicalFileSize - filesize) > 100) or (abs(self.previousFileSize - filesize) > 100):
-                filesize = Path(path).stat().st_size
-                # acquisitionFinished = False
-                time.sleep(0.050)
+            if self.typicalFileSize - filesize > 4000:  # suppose that minimal copying block is 4K
+                acquisitionFinished = False
 
-        # Unreachable branch now.
         if not acquisitionFinished:
             if self.pendingFilename != fname:
                 logger.info('Acquisition in progress - "{}"', fname)
@@ -666,9 +664,8 @@ class OpenNFT(QWidget):
 
             self.files_queue.put_nowait(fname)
             self.isMainLoopEntered = False
-
         else:
-            self.previousFileSize = Path(path).stat().st_size
+            self.typicalFileSize = Path(path).stat().st_size
 
         return acquisitionFinished
 
@@ -731,17 +728,6 @@ class OpenNFT(QWidget):
         else:
             try:
                 fname = self.files_queue.get_nowait()
-                # Is this change necessary?
-                ############### 修改2 #################
-                # 读取当前文件大小，比较两次读取的大小，若一样则传输完毕，可以读取文件进行处理。
-                presize = Path(fname).stat().st_size
-                time.sleep(0.050)
-                filesize = Path(fname).stat().st_size
-                while filesize != presize:
-                    presize = filesize
-                    time.sleep(0.050)
-                    filesize = Path(fname).stat().st_size
-                ######################################
             except queue.Empty:
                 if (self.previousIterStartTime > 0) and (self.preiteration < self.iteration):
                     if (time.time() - self.previousIterStartTime) > (self.P['TR'] / 1000):
@@ -763,7 +749,6 @@ class OpenNFT(QWidget):
         if fname is not None:
             path = str(Path(self.P['WatchFolder'], fname))
             if (not self.isOffline) and (not self.cbUseTCPData.isChecked()) and self.reachedFirstFile:
-                # Set it to be an unreachable branch, but the function should be run.
                 if not self.checkFileIsReady(path, fname):
                     self.isMainLoopEntered = False
                     return
@@ -791,7 +776,7 @@ class OpenNFT(QWidget):
                     cur_fname = splitted_name[0] + "_" + splitted_name[1] + "_" + splitted_name[2] + ".dcm"
                 r = re.findall(r'\D(\d+).\w+$', cur_fname)
                 cur_num = int(r[-1])
-                if True:
+                if cur_num - last_num == 1:
                     fname = cur_fname
                     break
 
@@ -827,10 +812,7 @@ class OpenNFT(QWidget):
                 firstFileName = self.P['FirstFileName'].split('.')[0]
             else:
                 firstFileName = self.P['FirstFileName']
-            ############ 修改1 ############
-            # 增加 firstFileName != '_.dcm' 用于读取任意文件名的dcm数据并作为第一张
-            if firstFileName != '_.dcm' and not firstFileName in fname:
-            ##############################
+            if not firstFileName in fname:
                 logger.info('Volume skipped, waiting for first file')
                 self.isMainLoopEntered = False
                 return
@@ -857,6 +839,10 @@ class OpenNFT(QWidget):
 
         self.previousIterStartTime = startingTime
 
+        # Wait until the file transfer is complete.
+        while self.is_file_in_use(fname):
+            time.sleep(0.05)
+
         if self.iteration == 1 or autoRTQAMCTempl:
             with utils.timeit('  setup after first volume:'):
                 self.eng.setupFirstVolume(fname, nargout=0)
@@ -864,7 +850,7 @@ class OpenNFT(QWidget):
         # Main logic
         # data preprocessing
         if config.USE_YIELD:
-            self.call_timer.setInterval(config.MAIN_LOOP_CALL_PERIOD / 3)
+            self.call_timer.setInterval(np.int32(config.MAIN_LOOP_CALL_PERIOD / 3))
             prepr_vol_state = self.eng.preprVol(fname, self.iteration, background=True, nargout=0)
             while not prepr_vol_state.done():
                 yield
@@ -1085,6 +1071,19 @@ class OpenNFT(QWidget):
         self.call_timer.setInterval(config.MAIN_LOOP_CALL_PERIOD)
         self.isMainLoopEntered = False
 
+
+    def is_file_in_use(self, file_path):
+        try:
+            with open(file_path, 'r') as file:
+                pass
+        except PermissionError:
+            return True
+        except FileNotFoundError:
+            print(f"File {file_path} does not exist.")
+            return False
+        return False
+
+
     # --------------------------------------------------------------------------
     def getFileSearchString(self, file_name_template, path, ext):
         file_series_part = re.findall(r"\{#:(\d+)\}", file_name_template)
@@ -1237,7 +1236,6 @@ class OpenNFT(QWidget):
 
     # --------------------------------------------------------------------------
     def initialize(self, start=True):
-        self.readAppSettings()
         ts = time.time()
 
         self.isInitialized = False
@@ -1357,7 +1355,6 @@ class OpenNFT(QWidget):
 
         self.isMainLoopEntered = False
         self.typicalFileSize = 0
-        self.previousFileSize = 0
         self.displayQueue = queue.Queue()
         self.resetDone = True
 
@@ -2576,8 +2573,7 @@ class OpenNFT(QWidget):
             filePathStatus += "MRI Watch Folder exists. "
         else:
             filePathStatus += "MRI Watch Folder does not exists. "
-        if Path(self.leFirstFilePath.text()).is_file() or self.leFirstFilePath.text().strip().split('\\')[
-            -1] == '_.dcm':
+        if Path(self.leFirstFilePath.text()).is_file():
             filePathStatus += "First file exists. "
         else:
             filePathStatus += "First file does not exist. "
