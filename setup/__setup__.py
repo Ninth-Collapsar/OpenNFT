@@ -109,8 +109,13 @@ def run():
         print("------ Set all 4 groups as LHIP. ------")
         mainLoop_toP = __matlab__ / "mainLoopEntry.m"
 
+<<<<<<< HEAD
         # step 1, add rest first and set it to be baseline,
         # move count to the third condition,
+=======
+        # step 1, add rest first and set it to be baseline, 
+        # move random count to the third condition, 
+>>>>>>> 1abb9f7d2e4f6f53519805f3af03a09a81d472fb
         # and compare regulation with rest.
         mainLoop_fromP = __dir__ / "changed" / "mainLoopEntry.m"
         shutil.copyfile(mainLoop_fromP, mainLoop_toP)
@@ -127,7 +132,7 @@ def run():
         task += 1
         set_random()
 
-        # step 3, comp with above steps, remove regulation only.
+        # step 3, compare with above steps, remove regulation only.
         if input(">>> Next step (y or n)? ") == "n":
             recover()
             return
