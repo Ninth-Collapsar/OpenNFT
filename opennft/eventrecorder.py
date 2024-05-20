@@ -19,28 +19,28 @@ __all__ = ['Times', 'EventRecorder']
 
 class Times(enum.IntEnum):
     # Events timestamps
-    t0 = 0  # MR pulse time in online mode
+    t0 = 0      # MR pulse time in online mode
 
-    t1 = 1  # start file reading from the export folder in online mode
-    # first non-zero time in online mode, if there is no trigger signal
-    t2 = 2  # finish file reading from the export folder,
-    # first non-zero time in offline mode
-    t3 = 3  # end of prepossessing routine
-    t4 = 4  # end of spatial-temporal data processing
-    t5 = 5  # end of feedback computation
-    t6 = 6  # begin of display instruction in Python Core process
-    t7 = 7  # begin of display instruction in Python PtbScreen class
-    t8 = 8  # begin of display feedback in Python PtbScreen class
-    t9 = 9  # end of display instruction in Matlab PTB Helper
-    t10 = 10  # end of display feedback in Matlab PTB Helper
+    t1 = 1      # start file reading from the export folder in online mode
+                # first non-zero time in online mode, if there is no trigger signal
+    t2 = 2      # finish file reading from the export folder,
+                # first non-zero time in offline mode
+    t3 = 3      # end of prepossessing routine
+    t4 = 4      # end of spatial-temporal data processing
+    t5 = 5      # end of feedback computation
+    t6 = 6      # begin of display instruction in Python Core process
+    t7 = 7      # begin of display instruction in Python PtbScreen class
+    t8 = 8      # begin of display feedback in Python PtbScreen class
+    t9 = 9      # end of display instruction in Matlab PTB Helper
+    t10 = 10    # end of display feedback in Matlab PTB Helper
 
     # optional timestamps
     # DCM special timestamps
-    t11 = 11  # first DCM model computation started
-    t12 = 12  # last DCM model computation is done
+    t11 = 11    # first DCM model computation started
+    t12 = 12    # last DCM model computation is done
 
     # Events durations
-    d0 = 13  # elapsed time per iteration
+    d0 = 13     # elapsed time per iteration
 
 
 # ==============================================================================
@@ -59,7 +59,7 @@ class EventRecorder(object):
         """
         """
         timeVectorLength = len(list(Times))
-        self.records = np.zeros((NrOfVolumes + 2, timeVectorLength), dtype=np.float64)
+        self.records = np.zeros((NrOfVolumes + 1, timeVectorLength), dtype=np.float64)
 
     # --------------------------------------------------------------------------
     def recordEvent(self, position: Times, eventNumber, value=None):

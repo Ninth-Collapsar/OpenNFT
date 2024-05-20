@@ -33,13 +33,13 @@ switch feedbackType
     case 'bar_count'
         dispValue  = dispValue*(floor(P.Screen.h/2) - floor(P.Screen.h/10))/100;
         switch condition
-            case 1  % Baseline
+            case 1 % Baseline
                 % Text "COUNT"
                 Screen('TextSize', P.Screen.wPtr , P.Screen.h/10);
                 Screen('DrawText', P.Screen.wPtr, 'COUNT', ...
                     floor(P.Screen.w/2-P.Screen.h/4), ...
                     floor(P.Screen.h/2-P.Screen.h/10), instrColor);
-            case 2  % Regualtion
+            case 2 % Regualtion
                 % Fixation Point
                 Screen('FillOval', P.Screen.wPtr, [255 255 255], ...
                     [floor(P.Screen.w/2-P.Screen.w/200), ...
@@ -66,17 +66,17 @@ switch feedbackType
     case 'bar_count_task'
         dispValue  = dispValue*(floor(P.Screen.h/2) - floor(P.Screen.h/10))/100;
         switch condition
-            case 1  % Baseline
+            case 1 % Baseline
                 % Text "COUNT"
                 Screen('TextSize', P.Screen.wPtr , P.Screen.h/10);
                 Screen('DrawText', P.Screen.wPtr, 'COUNT', ...
                     floor(P.Screen.w/2-P.Screen.h/4), ...
                     floor(P.Screen.h/2-P.Screen.h/10), instrColor);
                 
-                P.Screen.vbl = Screen('Flip', P.Screen.wPtr, ...
-                    P.Screen.vbl + P.Screen.ifi/2);
+                 P.Screen.vbl = Screen('Flip', P.Screen.wPtr, ...
+                     P.Screen.vbl + P.Screen.ifi/2);
                 
-            case 2  % Regualtion
+            case 2 % Regualtion
                 % Fixation Point
                 Screen('FillOval', P.Screen.wPtr, [255 255 255], ...
                     [floor(P.Screen.w/2-P.Screen.w/200), ...
@@ -104,7 +104,7 @@ switch feedbackType
         end
         
     %% Intermittent PSC
-    case 'value_fixation'
+case 'value_fixation'
         indexSmiley = round(dispValue);
         if indexSmiley == 0
             indexSmiley = 1;
@@ -150,8 +150,8 @@ switch feedbackType
                         pause(randi([30,100])/1000);
                     end
                 end
-
-            case 3  % NF
+                
+            case 3 % NF
                 % feedback value
                 Screen('DrawText', P.Screen.wPtr, mat2str(dispValue), ...
                     P.Screen.w/2 - P.Screen.w/30+0, ...
@@ -172,7 +172,7 @@ switch feedbackType
         imgPNr = P.imgPNr;
         imgNNr = P.imgNNr;
         switch condition
-            case 1  % Neutral textures
+            case 1 % Neutral textures
                 % Define texture
                 nrP = 0;
                 nrN = nrN + 1;
@@ -192,7 +192,7 @@ switch feedbackType
                 P.Screen.vbl=Screen('Flip', P.Screen.wPtr, ...
                     P.Screen.vbl+P.Screen.ifi/2);
 
-            case 2  % Positive textures
+            case 2 % Positive textures
                 % Define texture
                 nrN = 0;
                 nrP = nrP + 1;
@@ -212,15 +212,15 @@ switch feedbackType
                 P.Screen.vbl=Screen('Flip', P.Screen.wPtr, ...
                     P.Screen.vbl+P.Screen.ifi/2);
 
-            case 3  % Rest epoch
+            case 3 % Rest epoch
                 % Black screen case is called seaprately in Python to allow
                 % using PTB Matlab Helper process for DCM model estimations
 
-            case 4  % NF display
+            case 4 % NF display
                 nrP = 0;
                 nrN = 0;
                 % red if positive, blue if negative
-                if dispValue > 0
+                if dispValue >0
                     dispColor = [255, 0, 0];
                 else
                     dispColor = [0, 0, 255];

@@ -6,8 +6,8 @@ import pathlib
 import tempfile
 import subprocess
 
-from distutils.spawn import find_executable
-from distutils.core import DistutilsOptionError
+from shutil import which
+from setuptools.errors import OptionError
 
 from setuptools import setup, find_packages
 from setuptools.command.install import install
@@ -77,7 +77,7 @@ class InstallMatlabEngineMixin:
         if self.matlab_root is not None:
             self.matlab_root = pathlib.Path(self.matlab_root)
             if not self.matlab_root.is_dir():
-                raise DistutilsOptionError(
+                raise OptionError(
                     'MATLAB installation directory "{}" does not exist'.format(self.matlab_root))
 
     def _install_matlab_engine(self):
@@ -85,7 +85,7 @@ class InstallMatlabEngineMixin:
             matlab_root = self.matlab_root
             install_failed_error = True
         else:
-            matlab_exe = find_executable('matlab')
+            matlab_exe = which('matlab')
             if not matlab_exe:
                 print('Cannot find MATLAB. "Matlab engine for Python" will not be installed', file=sys.stderr)
                 return
@@ -206,10 +206,9 @@ setup(
         'License :: OSI Approved :: GPL-3.0 License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: Implementation :: CPython',
     ],
 

@@ -36,9 +36,7 @@ if indVol == double(P.nrSkipVol)+1
 end
 
 flags = getFlagsType(P);
-%%%
-fprintf(['--- P.Prot = ' P.Prot '\n']);
-%%%
+
 if (strcmp(P.Prot, 'Inter') ||  strcmp(P.Prot, 'Cont') || strcmp(P.Prot, 'ContTask') || strcmp(P.Prot, 'Auto_RTQA'))  && ...
         (flags.isPSC ||  flags.isSVM || flags.isCorr || flags.isNone)
     
@@ -51,9 +49,6 @@ if (strcmp(P.Prot, 'Inter') ||  strcmp(P.Prot, 'Cont') || strcmp(P.Prot, 'ContTa
     
     % initialize relevant fields and a flag
     condition = P.vectEncCond(indVol - P.nrSkipVol);
-    %%%
-    fprintf(['--- mainLoopData.condition = ' num2str(condition) '\n']);
-    %%%
     mainLoopData.condition = condition;
     
     if strcmp(P.Prot, 'Cont')
@@ -65,11 +60,6 @@ if (strcmp(P.Prot, 'Inter') ||  strcmp(P.Prot, 'Cont') || strcmp(P.Prot, 'ContTa
             mainLoopData.Reward = '';
         elseif condition == 2
             mainLoopData.flagEndPSC = 1;
-        %%%
-        elseif condition == 3
-            mainLoopData.dispValue = 0;
-            mainLoopData.Reward = '';
-        %%%
         end
         displayData.displayStage = 'instruction';
     end
@@ -114,9 +104,6 @@ if (strcmp(P.Prot, 'Inter') ||  strcmp(P.Prot, 'Cont') || strcmp(P.Prot, 'ContTa
         displayData.feedbackType = 'bar_count_task';
     end
     displayData.condition = condition;
-    %%%
-    fprintf(['--- disValue = ' num2str(mainLoopData.dispValue) '\n'])
-    %%%
     displayData.dispValue = mainLoopData.dispValue;
     displayData.Reward = mainLoopData.Reward;
 end

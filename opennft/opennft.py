@@ -187,7 +187,7 @@ class OpenNFT(QWidget):
         self.resetDone = False
         self.isInitialized = False
         self.isSetFileChosen = False
-        self.isCalculateDcm = False  # TODO: rename to computeModelInProgress
+        self.isCalculateDcm = False  # todo: rename to computeModelInProgress
         self.isMainLoopEntered = False
         self.typicalFileSize = 0
         self.mainLoopLock = threading.Lock()
@@ -542,10 +542,8 @@ class OpenNFT(QWidget):
                     if 'plugin_prot' in self.pluginWindow.plugins[p].META.keys():
                         if self.settings.value('Prot') != self.pluginWindow.plugins[p].META['plugin_prot']:
                             QMessageBox.warning(self, 'Plugin compatibility issue',
-                                "Plugin '" + self.pluginWindow.plugins[p].META['plugin_name'] + 
-                                "' requires a protocol '" + self.pluginWindow.plugins[p].META['plugin_prot'] + 
-                                "'." + "\nIt is not compatible with current prortocol '" + 
-                                self.settings.value('Prot') + "' and will not be used.")
+                                "Plugin '"+self.pluginWindow.plugins[p].META['plugin_name']+"' requires a protocol '"+self.pluginWindow.plugins[p].META['plugin_prot']+"'."+
+                                "\nIt is not compatible with current prortocol '"+self.settings.value('Prot')+"' and will not be used.")
                             continue
                     self.plugins += [plugin.Plugin(self, self.pluginWindow.plugins[p])]
 
@@ -776,7 +774,7 @@ class OpenNFT(QWidget):
                     cur_fname = splitted_name[0] + "_" + splitted_name[1] + "_" + splitted_name[2] + ".dcm"
                 r = re.findall(r'\D(\d+).\w+$', cur_fname)
                 cur_num = int(r[-1])
-                if cur_num - last_num == 1:
+                if cur_num - last_num != 0:
                     fname = cur_fname
                     break
 
@@ -812,7 +810,7 @@ class OpenNFT(QWidget):
                 firstFileName = self.P['FirstFileName'].split('.')[0]
             else:
                 firstFileName = self.P['FirstFileName']
-            if not firstFileName in fname:
+            if not firstFileName.replace("_", "") in fname:
                 logger.info('Volume skipped, waiting for first file')
                 self.isMainLoopEntered = False
                 return
@@ -839,7 +837,6 @@ class OpenNFT(QWidget):
 
         self.previousIterStartTime = startingTime
 
-        # Wait until the file transfer is complete.
         while self.is_file_in_use(fname):
             time.sleep(0.05)
 
@@ -1478,6 +1475,7 @@ class OpenNFT(QWidget):
 
                     self.ptbScreen.initialize(
                         sid, self.P['WorkFolder'], self.P['Prot'], ptbP)
+
 
             if config.USE_MRPULSE:
                 (self.pulseProc, self.mrPulses) = mrpulse.start(self.P['NrOfVolumes'], self.displayEvent)

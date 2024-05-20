@@ -66,8 +66,8 @@ def run():
     ################################################################
 
     # path setting
-    t1Dir = r"E:\RT\receive\struct"
-    restDir = r"E:\RT\receive\func"
+    t1Dir = r"E:\RT\preprocess\t1w"
+    restDir = r"E:\RT\preprocess\rest"
 
     ################################################################
 

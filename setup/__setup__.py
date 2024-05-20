@@ -1,3 +1,5 @@
+# -----------------------------------------------------------------------------
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -5,12 +7,10 @@ import shutil
 import random
 import scipy.io
 
-
 # -----------------------------------------------------------------------------
 def set_random():
     print(f"------ Set random number as {random.randint(1, 9)}. ------")
     return
-
 
 # -----------------------------------------------------------------------------
 def recover():
@@ -28,24 +28,28 @@ def recover():
 
     return
 
+# -----------------------------------------------------------------------------
+def get_create_time(fpath) -> str:
+    time_stamp = Path(fpath).stat().st_ctime
+    full_time = datetime.fromtimestamp(time_stamp, tz=timezone(timedelta(hours=8)))
+    return full_time.strftime("%Y%m%d%H%M%S")
 
 # -----------------------------------------------------------------------------
 def find_path(namestr: str, fpath):
-    s = ""
     for i in Path(fpath).iterdir():
         if i.name.lower().replace("_", "").__contains__(namestr.lower().replace("_", "")):
             return i
-    return s
-
+    print(f"====== Cannot find {namestr} in {fpath}. ======")
+    return None
 
 # -----------------------------------------------------------------------------
 def read_mat(fpath, tag):
     mat_path = find_path("mainLoopData", Path(fpath).joinpath("work", "NF_Data_1"))
-    if mat_path == "":
+    if mat_path is None:
         return
 
     data = scipy.io.loadmat(mat_path)
-    vectNFBs = data['vectBFBs']
+    vectNFBs = data['vectNFBs']
     if vectNFBs.ndim != 2 or vectNFBs.shape[1] < 480:
         return
 
@@ -56,14 +60,20 @@ def read_mat(fpath, tag):
     print("****** Mat saved. ******")
     return
 
-
 # -----------------------------------------------------------------------------
 def redemy(fpath, tag1: str, tag2: int):
     tag = f"d{tag1}t{str(tag2)}"
-    Path(fpath).joinpath("watch", tag).mkdir()
+    store_path = Path(fpath).joinpath("watch", tag)
+    if store_path.is_dir():
+        dt = get_create_time(store_path)
+        Path(store_path).replace(Path(fpath).joinpath("watch", tag + '_' + dt))
+    store_path.mkdir()
     read_mat(fpath, f"{tag}.csv")
+    
+    online_receive = r"E:\RT\receive"
+    for i in Path(online_receive).iterdir():
+        i.rename(store_path)
     return
-
 
 # -----------------------------------------------------------------------------
 def run():
@@ -76,8 +86,7 @@ def run():
     print("====== Setup started. ======")
     pname = input(">>> Input subject name: ")
     sub_path = find_path(pname, data_path)
-    if sub_path == "":
-        print("====== Cannot find pname in subjects. ======")
+    if sub_path is None:
         return
 
     day = input(">>> Day 1 or Day 2 (1 or 2)? ")
@@ -117,6 +126,7 @@ def run():
         feed_fromP = __screen__ / "rest" / "displayFeedback.m"
         shutil.copyfile(feed_fromP, feed_toP)
         print("------ Choose | config_rest.json | in <setup>. ------")
+        set_random()
 
         # step 2, repeat step 1 and set another random count.
         if input(">>> Next step (y or n)? ") == "n":
@@ -155,7 +165,6 @@ def run():
     # recover
     recover()
     return
-
 
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":

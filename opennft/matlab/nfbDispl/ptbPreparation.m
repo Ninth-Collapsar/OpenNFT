@@ -48,11 +48,23 @@ fFullScreen = P.DisplayFeedbackFullscreen;
 if ~fFullScreen
     % part of the screen, e.g. for test mode
     if strcmp(protName, 'Cont')
-        P.Screen.wPtr = Screen('OpenWindow', screenid, [125 125 125], ...
-            [40 40 640 520]);
+         if screenid>=2
+            [ww,wh]= Screen('WindowSize',1);
+            P.Screen.wPtr = Screen('OpenWindow', screenid, [125 125 125], ...
+                [40+ww 40 640+ww 520]);
+        else
+            P.Screen.wPtr = Screen('OpenWindow', screenid, [125 125 125], ...
+                [40 40 640 520]);
+        end
     else
-        P.Screen.wPtr = Screen('OpenWindow', screenid, [125 125 125], ...
-            [40 40 720 720]);
+        if screenid>=2
+            [ww,wh]= Screen('WindowSize',1);
+            P.Screen.wPtr = Screen('OpenWindow', screenid, [125 125 125], ...
+                [40+ww 40 720+ww 720]);
+        else
+            P.Screen.wPtr = Screen('OpenWindow', screenid, [125 125 125], ...
+                [40 40 720 720]);
+        end
     end
 else
     % full screen
@@ -75,7 +87,7 @@ Screen('DrawText', P.Screen.wPtr, 'HELLO', ...
     floor(P.Screen.h/2-P.Screen.h/10), [200 200 200]);
 P.Screen.vbl=Screen('Flip', P.Screen.wPtr,P.Screen.vbl+P.Screen.ifi/2);
 
-pause(2);
+pause(1);
 
 % Each event row for PTB is formatted as
 % [t9, t10, displayTimeInstruction, displayTimeFeedback]
