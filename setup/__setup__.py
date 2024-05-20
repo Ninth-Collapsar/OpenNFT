@@ -43,22 +43,22 @@ def find_path(namestr: str, fpath):
     return None
 
 # -----------------------------------------------------------------------------
-def read_mat(fpath, tag):
+def read_mat(fpath, tag) -> bool:
     mat_path = find_path("mainLoopData", Path(fpath).joinpath("work", "NF_Data_1"))
     if mat_path is None:
-        return
+        return False
 
     data = scipy.io.loadmat(mat_path)
     vectNFBs = data['vectNFBs']
     if vectNFBs.ndim != 2 or vectNFBs.shape[1] < 480:
-        return
+        return False
 
     scalProcTimeSeries = data['scalProcTimeSeries'][:-1, :]
     vectNFBs = data['vectNFBs']
     df = pd.concat([pd.DataFrame(scalProcTimeSeries), pd.DataFrame(vectNFBs)], ignore_index=True)
     df.to_csv(Path(fpath).joinpath("watch", f"{tag}.csv"), index=False)
     print("****** Mat saved. ******")
-    return
+    return True
 
 # -----------------------------------------------------------------------------
 def redemy(fpath, tag1: str, tag2: int):
@@ -68,11 +68,10 @@ def redemy(fpath, tag1: str, tag2: int):
         dt = get_create_time(store_path)
         Path(store_path).replace(Path(fpath).joinpath("watch", tag + '_' + dt))
     store_path.mkdir()
-    read_mat(fpath, f"{tag}.csv")
-    
-    online_receive = r"E:\RT\receive"
-    for i in Path(online_receive).iterdir():
-        i.rename(store_path)
+    if read_mat(fpath, tag):
+        online_receive = r"E:\RT\receive"
+        for i in Path(online_receive).iterdir():
+            i.rename(store_path / i.name)
     return
 
 # -----------------------------------------------------------------------------
