@@ -133,6 +133,8 @@ def run():
     os.mkdir(os.path.join(roi_dir, "LHIP"))
     shutil.copyfile(os.path.join(roi_dir, "HIP", "L_HIP.nii"), 
                     os.path.join(roi_dir, "LHIP", "L_HIP.nii"))
+    shutil.copyfile(os.path.join(r'..\setup\screen\db_reg\config.json'), os.path.join(subCfgDir, 'config_dbrg.json'))
+    shutil.copyfile(os.path.join(r'..\setup\screen\rest\config.json'), os.path.join(subCfgDir, 'config_rest.json'))
 
     print('--------------------------')
     print('setting: %s' % subjectDir.split('\\')[-1])

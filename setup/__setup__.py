@@ -1,4 +1,9 @@
 # -----------------------------------------------------------------------------
+"""which python ---
+python --version:
+Python 3.6.13 :: Anaconda."""
+
+# -----------------------------------------------------------------------------
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 import numpy as np
@@ -25,7 +30,6 @@ def recover():
     mainLoop_fromP = __dir__ / "original" / "mainLoopEntry.m"
     mainLoop_toP = __matlab__ / "mainLoopEntry.m"
     shutil.copyfile(mainLoop_fromP, mainLoop_toP)
-
     return
 
 # -----------------------------------------------------------------------------
@@ -37,7 +41,8 @@ def get_create_time(fpath) -> str:
 # -----------------------------------------------------------------------------
 def find_path(namestr: str, fpath):
     for i in Path(fpath).iterdir():
-        if i.name.lower().replace("_", "").__contains__(namestr.lower().replace("_", "")):
+        if i.name.lower().replace("_", "").replace(" ", "").replace("^", "") \
+            .__contains__(namestr.lower().replace("_", "").replace(" ", "")):
             return i
     print(f"====== Cannot find {namestr} in {fpath}. ======")
     return None
